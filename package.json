@@ -1,0 +1,11 @@
+{
+  "name": "ooxxo",
+  "version": "1.0.0",
+  "description": "Best-to-5 tictactoe with PhaserJS and NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mtobi",
+  "license": "ISC"
+}
