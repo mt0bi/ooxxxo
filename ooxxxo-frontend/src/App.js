@@ -1,4 +1,4 @@
-import React, { useRef, useState, Fragment } from "react"
+import React, { useRef, useState, Fragment, useEffect } from "react"
 import { Canvas, useFrame, useThree } from "react-three-fiber"
 import produce from "immer"
 import "./App.css"
@@ -17,7 +17,7 @@ function Field(props) {
       <planeGeometry attach="geometry" />
       <meshStandardMaterial
         attach="material"
-        color={hovered ? "hotpink" : "black"}
+        color={hovered ? "hotpink" : "yellow"}
       />
       <Piece mark={props.mark} />
     </mesh>
@@ -56,6 +56,10 @@ function GameBoard(props) {
     .map(() => new Array(boardSize).fill("-"))
   const [gameBoard, updateGameBoard] = useState(matrix)
   const [turn, setTurn] = useState("x")
+  useEffect(() => {
+    camera.position.setX(Math.floor(boardSize / 2))
+    camera.position.setY(Math.floor(boardSize / 2))
+  }, [])
 
   function placeMarkAt(mark, i, j) {
     updateGameBoard(
@@ -76,16 +80,13 @@ function GameBoard(props) {
         <Field
           key={i.toString() + "-" + j.toString()}
           onClick={() => placeMarkAt(turn, i, j)}
-          row={i}
-          column={j}
           position={[i, j, -5]}
           mark={gameBoard[i][j]}
         />
       )
     }
-
-    return fields
   }
+  return fields
 }
 
 function Box(props) {
