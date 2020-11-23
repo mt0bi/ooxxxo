@@ -1,14 +1,10 @@
 import React, { useRef, useState, Fragment } from "react"
-import { applyProps, Canvas, useFrame, useThree } from "react-three-fiber"
+import { Canvas, useFrame, useThree } from "react-three-fiber"
+import produce from "immer"
 import "./App.css"
 
 function Field(props) {
-  const { camera } = useThree()
   const mesh = useRef()
-  if (props.mark === "x") {
-    camera.position.setX(props.row)
-    camera.position.setY(props.column)
-  }
 
   const [hovered, setHover] = useState(false)
 
@@ -16,7 +12,6 @@ function Field(props) {
     <mesh
       {...props}
       ref={mesh}
-      // onClick={(e) => setActive(!active)}
       onPointerOver={(e) => setHover(true)}
       onPointerOut={(e) => setHover(false)}>
       <planeGeometry attach="geometry" />
@@ -55,10 +50,23 @@ function Piece(props) {
 
 function GameBoard(props) {
   const { boardSize, ...restProps } = props
+  const { camera } = useThree()
   const matrix = new Array(boardSize)
     .fill("-")
     .map(() => new Array(boardSize).fill("-"))
   const [gameBoard, updateGameBoard] = useState(matrix)
+  const [turn, setTurn] = useState("x")
+
+  function placeMarkAt(mark, i, j) {
+    updateGameBoard(
+      produce(gameBoard, (draft) => {
+        draft[i][j] = mark
+      })
+    )
+    turn === "x" ? setTurn("o") : setTurn("x")
+    camera.position.setX(i)
+    camera.position.setY(j)
+  }
 
   const fields = []
 
@@ -67,10 +75,12 @@ function GameBoard(props) {
       fields.push(
         <Field
           key={i.toString() + "-" + j.toString()}
+          onClick={() => placeMarkAt(turn, i, j)}
           row={i}
           column={j}
           position={[i, j, -5]}
-          mark={gameBoard[i][j]}></Field>
+          mark={gameBoard[i][j]}
+        />
       )
     }
 
@@ -115,9 +125,7 @@ function Box(props) {
 }
 
 function App() {
-  const BOARD_SIZE = 5
-
-  const [turn, setTurn] = useState("x")
+  const BOARD_SIZE = 10
 
   return (
     <Fragment>
